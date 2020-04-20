@@ -84,6 +84,7 @@ class Block(object):
         elif type(payload) == MetaPayload:
             self.ptype = PayloadType.Meta
 
+        # TODO: Change to Merkle Tree
         payhash = hashlib.sha3_256(json.dumps(asdict(payload), sort_keys=True).encode('utf-8')).digest()
         headhash = hashlib.sha3_256(b''.join(parents) + payhash).digest()
         self.header = Header(numparents, parents, payhash, headhash)
