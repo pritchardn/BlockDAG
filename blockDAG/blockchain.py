@@ -4,7 +4,7 @@ Here to demonstrate our block implementation flexibility.
 
 """
 
-from block import *
+from block import Block, PayloadType, DataPayload
 import time
 import json
 
