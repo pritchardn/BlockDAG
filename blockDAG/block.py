@@ -20,22 +20,23 @@ class PayloadType(enum.Enum):
     Meta = 3
 
 
-@enforce_types
+# @enforce_types
 @dataclass
 class Header:
     numparents: int
     parents: list
-    payloadhash: bytes  # Generated at creation
-    blockhash: bytes  # Hashing payloadhash and parent(s) together
+    payloadhash: str  # Generated at creation
+    blockhash: str  # Hashing payloadhash and parent(s) together
 
 
-@enforce_types
+# @enforce_types
 @dataclass
 class GenesisPayload:
-    pass
+    length: int
+    data: str
 
 
-@enforce_types
+# @enforce_types
 @dataclass
 class CodePayload:
     language: str
@@ -44,14 +45,14 @@ class CodePayload:
     versiontag: str
 
 
-@enforce_types
+# @enforce_types
 @dataclass
 class DataPayload:
     length: int
-    data: bytes
+    data: str
 
 
-@enforce_types
+# @enforce_types
 @dataclass
 class MetaPayload:
     authors: str
@@ -85,8 +86,8 @@ class Block(object):
             self.ptype = PayloadType.Meta
 
         # TODO: Change to Merkle Tree
-        payhash = hashlib.sha3_256(json.dumps(asdict(payload), sort_keys=True).encode('utf-8')).digest()
-        headhash = hashlib.sha3_256(b''.join(parents) + payhash).digest()
+        payhash = hashlib.sha3_256(json.dumps(asdict(payload), sort_keys=True).encode('utf-8')).hexdigest()
+        headhash = hashlib.sha3_256((''.join(parents) + payhash).encode('utf-8')).hexdigest()
         self.header = Header(numparents, parents, payhash, headhash)
         # print(self.header.payloadhash)
         # print(self.header.blockhash)
