@@ -3,7 +3,6 @@ import enum
 import hashlib
 import json
 from dataclasses import dataclass, asdict
-from enforce_typing import enforce_types
 
 
 class Goal(enum.Enum):
@@ -63,6 +62,9 @@ class MetaPayload:
 class Block(object):
 
     def __init__(self, numparents: int, parents: list, payload):
+        self.header = None
+        self.payload = None
+
         if type(numparents) != int:
             raise TypeError("numparents must be int")
         if type(parents) != list:
@@ -84,11 +86,19 @@ class Block(object):
             self.ptype = PayloadType.Data
         elif type(payload) == MetaPayload:
             self.ptype = PayloadType.Meta
-
-        # TODO: Change to Merkle Tree
-        payhash = hashlib.sha3_256(json.dumps(asdict(payload), sort_keys=True).encode('utf-8')).hexdigest()
-        headhash = hashlib.sha3_256((''.join(parents) + payhash).encode('utf-8')).hexdigest()
-        self.header = Header(numparents, parents, payhash, headhash)
+        self.header = Header(numparents, parents, "", "")
+        self.payload = payload
         # print(self.header.payloadhash)
         # print(self.header.blockhash)
         # print("-------- == --------")
+
+    def update_hash(self):
+        # TODO: Change to Merkle Tree
+        payhash = hashlib.sha3_256(json.dumps(asdict(self.payload), sort_keys=True).encode('utf-8')).hexdigest()
+        headhash = hashlib.sha3_256((''.join(self.header.parents) + payhash).encode('utf-8')).hexdigest()
+        self.header = Header(self.header.numparents, self.header.parents, payhash, headhash)
+
+    def update_parents(self, numparents: int, parents: list):
+        self.header.numparents = numparents
+        self.header.parents = parents
+        self.update_hash()
