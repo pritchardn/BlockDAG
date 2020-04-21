@@ -68,7 +68,7 @@ class Block(object):
         if type(numparents) != int:
             raise TypeError("numparents must be int")
         if type(parents) != list:
-            raise TypeError("parents needs to be a list of bytes objects")
+            raise TypeError("parents needs to be a list of strings")
 
         if type(payload) == GenesisPayload:
             self.ptype = PayloadType.Genesis
@@ -79,7 +79,7 @@ class Block(object):
         elif numparents <= 0:
             raise ValueError("Positive number of parents needed")
         else:
-            all(isinstance(i, bytes) for i in parents)
+            all(isinstance(i, str) for i in parents)
         if type(payload) == CodePayload:
             self.ptype = PayloadType.Code
         elif type(payload) == DataPayload:
