@@ -38,9 +38,11 @@ class Blockchain(object):
         if btype == PayloadType.Data:
             dataload = DataPayload(len(data), data)
             newb = Block(1, [self.chain_head.header.blockhash], dataload)
+            newb.update_hash()
         elif btype == PayloadType.Genesis:
             dataload = GenesisPayload(len(data), data)
             newb = Block(0, [], dataload)
+            newb.update_hash()
         self.entries = []
         self.chain.append(newb)
         self.head_index += 1
