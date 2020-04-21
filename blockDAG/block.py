@@ -61,7 +61,7 @@ class MetaPayload:
 
 class Block(object):
 
-    def __init__(self, numparents: int, parents: list, payload):
+    def __init__(self, payload, numparents=None, parents=None):
         self.header = None
         self.payload = None
 
@@ -73,7 +73,9 @@ class Block(object):
             self.ptype = PayloadType.Data
         elif type(payload) == MetaPayload:
             self.ptype = PayloadType.Meta
-        self.header = Header(numparents, parents, "", "")
+        self.header = Header(-1, [], "", "")
+        if numparents and parents:
+            self.update_parents(numparents, parents)
         self.payload = payload
         # print(self.header.payloadhash)
         # print(self.header.blockhash)
