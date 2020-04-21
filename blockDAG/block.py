@@ -65,22 +65,9 @@ class Block(object):
         self.header = None
         self.payload = None
 
-        if type(numparents) != int:
-            raise TypeError("numparents must be int")
-        if type(parents) != list:
-            raise TypeError("parents needs to be a list of strings")
-
         if type(payload) == GenesisPayload:
             self.ptype = PayloadType.Genesis
-            if numparents != 0:
-                raise ValueError("Genesis block must have no parents")
-            if parents:
-                raise ValueError("Genesis block must have no parents []")
-        elif numparents <= 0:
-            raise ValueError("Positive number of parents needed")
-        else:
-            all(isinstance(i, str) for i in parents)
-        if type(payload) == CodePayload:
+        elif type(payload) == CodePayload:
             self.ptype = PayloadType.Code
         elif type(payload) == DataPayload:
             self.ptype = PayloadType.Data
@@ -99,6 +86,19 @@ class Block(object):
         self.header = Header(self.header.numparents, self.header.parents, payhash, headhash)
 
     def update_parents(self, numparents: int, parents: list):
+        if type(numparents) != int:
+            raise TypeError("numparents must be int")
+        if type(parents) != list:
+            raise TypeError("parents needs to be a list of strings")
+        if type(self.payload) == GenesisPayload:
+            if numparents != 0:
+                raise ValueError("Genesis block must have no parents")
+            if parents:
+                raise ValueError("Genesis block must have no parents []")
+        elif numparents <= 0:
+            raise ValueError("Positive number of parents needed")
+        else:
+            all(isinstance(i, str) for i in parents)
         self.header.numparents = numparents
         self.header.parents = parents
         self.update_hash()
