@@ -1,7 +1,7 @@
 # Author: Nic Pritchard
 import networkx as nx
 import json
-from block import Block, PayloadType, GenesisPayload, DataPayload
+from block import Block, DataPayload
 
 
 def build_data_payload(content) -> DataPayload:
@@ -36,9 +36,14 @@ class BlockDAG(object):
         :return: None
         """
         # Collect hashes of parents of node
-        # Update parent list in node
-        # call generate hash on all children
-        pass
+        parents = nx.ancestors(self.graph, node)
+        numparents = len(parents)
+        parenthashes = []
+        for elem in parents:
+            parenthashes.append(self.graph.nodes[elem]['block'].header.blockhash)
+        self.graph.nodes[node]['block'].update_parents(numparents, parenthashes)
+        for child in nx.neighbors(self.graph, node):
+            self.__generate_hash__(child)
 
     def add_node(self, data) -> int:
         """
@@ -50,7 +55,7 @@ class BlockDAG(object):
             return -1
         payload = build_data_payload(data)
         self.graph.add_node(self.new_node_name,
-                            block= Block(payload),
+                            block=Block(payload),
                             name=self.new_node_name)
         self.new_node_name += 1
         return self.new_node_name - 1
@@ -72,3 +77,12 @@ class BlockDAG(object):
                 return False
             self.__generate_hash__(v)
             return True
+
+
+x = BlockDAG()
+a = x.add_node("test")
+b = x.add_node("potato")
+x.add_edge(a, b)
+c = x.add_node(45)
+x.add_edge(c, b)
+x.add_edge(c, a)
