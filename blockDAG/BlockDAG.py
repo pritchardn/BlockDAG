@@ -77,12 +77,3 @@ class BlockDAG(object):
                 return False
             self.__generate_hash__(v)
             return True
-
-
-x = BlockDAG()
-a = x.add_node("test")
-b = x.add_node("potato")
-x.add_edge(a, b)
-c = x.add_node(45)
-x.add_edge(c, b)
-x.add_edge(c, a)
