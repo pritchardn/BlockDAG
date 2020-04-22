@@ -2,21 +2,19 @@ from pytest import raises
 from block import *
 
 
-def test_block_type_errors():
-    assert True
+class TestBlock:
 
+    def test_block_type_errors(self):
+        assert True
 
-def test_block_genesis():
-    assert True
+    def test_block_genesis(self):
+        assert True
 
+    def test_block_code(self):
+        assert True
 
-def test_block_code():
-    assert True
+    def test_block_data(self):
+        assert True
 
-
-def test_block_data():
-    assert True
-
-
-def test_block_meta():
-    assert True
+    def test_block_meta(self):
+        assert True
