@@ -1,0 +1,2 @@
+class MerkleDAG:
+    pass
