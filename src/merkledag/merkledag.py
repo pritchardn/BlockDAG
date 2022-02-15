@@ -10,13 +10,21 @@ def _build_hash_payload(vertex: dict, data_fields, hash_function):
     mtree = MerkleTree(sorted(data), hash_function)
     return {'data_hash': mtree.merkle_root}
 
+
+def _build_block_hash(data: dict, hash_function):
+    hashes = []
+    for key, val in data.items():
+        hashes.append(val)
+    mtree = MerkleTree(sorted(hashes), hash_function)
+    data['hash'] = mtree.merkle_root
+
+
 def _generate_graph_signature(leaves: list, hash_function):
     hashes = []
     for leaf in leaves:
         hashes.append(leaf['hash'])
     mtree = MerkleTree(sorted(hashes), hash_function)
     return mtree.merkle_root
-
 
 
 def build_merkle_dag(vertices: dict, edges: dict, hash_function, data_fields, append_global=True,
@@ -64,6 +72,7 @@ def build_merkle_dag(vertices: dict, edges: dict, hash_function, data_fields, ap
     for leaf in leaves:
         leaf_vertices.append(outputset[leaf][0])
     outputset['signature'] = _generate_graph_signature(leaf_vertices, hash_function)
+
 
 def compare_dags(vertices_1, edges_1, vertices_2, edgeS_2):
     pass
