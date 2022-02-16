@@ -14,7 +14,10 @@ def _build_hash_payload(vertex: dict, data_fields, hash_function):
 def _build_block_hash(data: dict, hash_function):
     hashes = []
     for key, val in data.items():
-        hashes.append(val)
+        if val is list:
+            hashes.extend(val)
+        else:
+            hashes.append(val)
     mtree = MerkleTree(sorted(hashes), hash_function)
     data['hash'] = mtree.merkle_root
 
@@ -30,6 +33,7 @@ def _generate_graph_signature(leaves: list, hash_function):
 def build_merkle_dag(vertices: dict, edges: dict, hash_function, data_fields, append_global=True,
                      append_hash=True, overwrite=True):
     dropset = {}
+    workingset = {}
     outputset = {}
     neighbourset = {}
     leaves = []
@@ -39,7 +43,7 @@ def build_merkle_dag(vertices: dict, edges: dict, hash_function, data_fields, ap
 
     for id, vertex in vertices.items():
         dropset[id] = [vertex, 0, 0]  # Data, in-degree, out-degree
-        outputset[id] = [None, []]  # Block_data, Parent_hashes
+        workingset[id] = [None, []]  # Block_data, Parent_hashes
         neighbourset[id] = []
 
     for u, v in edges.items():
@@ -55,23 +59,25 @@ def build_merkle_dag(vertices: dict, edges: dict, hash_function, data_fields, ap
 
     while queue:
         id = queue.pop()
-        outputset[id][0] = _build_hash_payload(dropset[id][0], data_fields, hash_function)
+        workingset[id][0] = _build_hash_payload(dropset[id][0], data_fields, hash_function)
+        hashes = {}
+        hashes.update(workingset[id][0])
+        hashes['parent_hashes'] = workingset[id][1]
+        _build_block_hash(hashes, hash_function)
+        outputset[id] = hashes
         visited.append(id)
         for neighbour in neighbourset[id]:
-            current_neighbour = dropset[neighbour][0]
             dropset[neighbour][1] -= 1
-            # TODO: Add parent hash
-
+            workingset[neighbour][1].append(outputset[id]['hash'])
             if dropset[neighbour][1] == 0:
                 queue.append(neighbour)
-
     if len(visited) != len(dropset):
         raise AssertionError("Some vertices untraversed")
 
     leaf_vertices = []
     for leaf in leaves:
-        leaf_vertices.append(outputset[leaf][0])
-    outputset['signature'] = _generate_graph_signature(leaf_vertices, hash_function)
+        leaf_vertices.append(workingset[leaf][0])
+    workingset['signature'] = _generate_graph_signature(leaf_vertices, hash_function)
 
 
 def compare_dags(vertices_1, edges_1, vertices_2, edgeS_2):
