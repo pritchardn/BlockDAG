@@ -14,10 +14,11 @@ def _build_hash_payload(vertex: dict, data_fields, hash_function):
 def _build_block_hash(data: dict, hash_function):
     hashes = []
     for key, val in data.items():
-        if val is list:
-            hashes.extend(val)
-        else:
-            hashes.append(val)
+        if val is not None:
+            if type(val) is list:
+                hashes.extend(val)
+            else:
+                hashes.append(val)
     mtree = MerkleTree(sorted(hashes), hash_function)
     data['hash'] = mtree.merkle_root
 
@@ -30,7 +31,7 @@ def _generate_graph_signature(leaves: list, hash_function):
     return mtree.merkle_root
 
 
-def build_merkle_dag(vertices: dict, edges: dict, hash_function, data_fields, append_global=True,
+def build_merkle_dag(vertices: dict, edges: list, hash_function, data_fields, append_global=True,
                      append_hash=True, overwrite=True):
     dropset = {}
     workingset = {}
@@ -46,9 +47,9 @@ def build_merkle_dag(vertices: dict, edges: dict, hash_function, data_fields, ap
         workingset[id] = [None, []]  # Block_data, Parent_hashes
         neighbourset[id] = []
 
-    for u, v in edges.items():
-        dropset[u][1] += 1
+    for u, v in edges:
         dropset[v][1] += 1
+        dropset[u][2] += 1
         neighbourset[u].append(v)
 
     for id in dropset:
@@ -76,8 +77,9 @@ def build_merkle_dag(vertices: dict, edges: dict, hash_function, data_fields, ap
 
     leaf_vertices = []
     for leaf in leaves:
-        leaf_vertices.append(workingset[leaf][0])
-    workingset['signature'] = _generate_graph_signature(leaf_vertices, hash_function)
+        leaf_vertices.append(outputset[leaf])
+    outputset['signature'] = _generate_graph_signature(leaf_vertices, hash_function)
+    return outputset
 
 
 def compare_dags(vertices_1, edges_1, vertices_2, edgeS_2):
