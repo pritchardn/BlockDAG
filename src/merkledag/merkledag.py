@@ -1,3 +1,4 @@
+import json
 import collections
 from merklelib import MerkleTree
 
@@ -90,5 +91,27 @@ def verify_leaf_inclusion(vertices, edges):
     pass
 
 
-def pretty_print(vertices, edges):
-    pass
+def pretty_print(vertices=None, edges=None, signatures=None, indent=4):
+    if vertices:
+        print("------\tVERTICES\t------")
+        print(json.dumps(vertices, indent=indent))
+    if edges:
+        print("------\tEDGES\t------")
+        print(json.dumps(edges, indent=indent))
+    if signatures:
+        print("------\tSIGNATURES\t------")
+        print(json.dumps(signatures, indent=indent))
+
+
+def pretty_prints(vertices=None, edges=None, signatures=None, indent=4):
+    ret = ""
+    if vertices:
+        ret += "------\tVERTICES\t------\n"
+        ret += json.dumps(vertices, indent=indent)
+    if edges:
+        ret += "------\tEDGES\t------\n"
+        ret += json.dumps(edges, indent=indent)
+    if signatures:
+        ret += "------\tSIGNATURES\t------\n"
+        ret += json.dumps(signatures, indent=indent)
+    return ret

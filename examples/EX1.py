@@ -1,6 +1,5 @@
-from merkledag import build_merkle_dag
+from merkledag import build_merkle_dag, pretty_prints
 import hashlib
-import json
 
 
 def hashfunc(value):
@@ -15,7 +14,7 @@ def main():
             }
     edges = [('a', 'b'), ('a', 'c'), ('b', 'd'), ('c', 'd')]
     sig = build_merkle_dag(data, edges, hashfunc, ['data'])
-    print(json.dumps(sig, indent=4))
+    print(pretty_prints(data, edges, sig))
 
 
 if __name__ == "__main__":
