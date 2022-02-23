@@ -1,6 +1,11 @@
 import json
 import collections
 from merklelib import MerkleTree
+import hashlib
+
+
+def _default_hash(value):
+    return hashlib.sha256(value).hexdigest()
 
 
 def _build_hash_payload(vertex: dict, data_fields, hash_function):
@@ -83,12 +88,34 @@ def build_merkle_dag(vertices: dict, edges: list, hash_function, data_fields, ap
     return outputset
 
 
-def compare_dags(vertices_1, edges_1, vertices_2, edgeS_2):
-    pass
+def compare_dags(vertices_1: dict, vertices_2: dict):
+    # Assumes vertices_1 contains the hash signatures for this data
+    if vertices_1['signature'] == vertices_2['signature']:
+        # They match, no work to be done
+        return True, [], []
+    else:
+        sigmap_1 = {}
+        sigmap_2 = {}
+        for key, val in vertices_1.items():
+            if not isinstance(val, dict):
+                continue
+            sigmap_1[val['hash']] = key
+        for key, val in vertices_2.items():
+            if not isinstance(val, dict):
+                continue
+            sigmap_2[val['hash']] = key
 
-
-def verify_leaf_inclusion(vertices, edges):
-    pass
+        sigset_1 = set(sigmap_1.keys())
+        sigset_2 = set(sigmap_2.keys())
+        difs_1 = sigset_1.difference(sigset_2)
+        difs_2 = sigset_2.difference(sigset_1)
+        out_1 = []
+        out_2 = []
+        for sig in difs_1:
+            out_1.append(sigmap_1[sig])
+        for sig in difs_2:
+            out_2.append(sigmap_2[sig])
+        return False, sorted(out_1), sorted(out_2)
 
 
 def pretty_print(vertices=None, edges=None, signatures=None, indent=4):
