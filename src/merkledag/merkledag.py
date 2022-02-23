@@ -1,7 +1,7 @@
 import json
+import hashlib
 import collections
 from merklelib import MerkleTree
-import hashlib
 
 
 def _default_hash(value):
@@ -19,9 +19,9 @@ def _build_hash_payload(vertex: dict, data_fields, hash_function):
 
 def _build_block_hash(data: dict, hash_function):
     hashes = []
-    for key, val in data.items():
+    for _, val in data.items():
         if val is not None:
-            if type(val) is list:
+            if isinstance(val, list):
                 hashes.extend(val)
             else:
                 hashes.append(val)
@@ -48,34 +48,34 @@ def build_merkle_dag(vertices: dict, edges: list, hash_function, data_fields, ap
 
     queue = collections.deque()
 
-    for id, vertex in vertices.items():
-        dropset[id] = [vertex, 0, 0]  # Data, in-degree, out-degree
-        workingset[id] = [None, []]  # Block_data, Parent_hashes
-        neighbourset[id] = []
+    for v_id, vertex in vertices.items():
+        dropset[v_id] = [vertex, 0, 0]  # Data, in-degree, out-degree
+        workingset[v_id] = [None, []]  # Block_data, Parent_hashes
+        neighbourset[v_id] = []
 
-    for u, v in edges:
-        dropset[v][1] += 1
-        dropset[u][2] += 1
-        neighbourset[u].append(v)
+    for src, dest in edges:
+        dropset[dest][1] += 1
+        dropset[src][2] += 1
+        neighbourset[src].append(dest)
 
-    for id in dropset:
-        if dropset[id][1] == 0:
-            queue.append(id)
-        if not neighbourset[id]:
-            leaves.append(id)
+    for v_id in dropset:
+        if dropset[v_id][1] == 0:
+            queue.append(v_id)
+        if not neighbourset[v_id]:
+            leaves.append(v_id)
 
     while queue:
-        id = queue.pop()
-        workingset[id][0] = _build_hash_payload(dropset[id][0], data_fields, hash_function)
+        v_id = queue.pop()
+        workingset[v_id][0] = _build_hash_payload(dropset[v_id][0], data_fields, hash_function)
         hashes = {}
-        hashes.update(workingset[id][0])
-        hashes['parent_hashes'] = workingset[id][1]
+        hashes.update(workingset[v_id][0])
+        hashes['parent_hashes'] = workingset[v_id][1]
         _build_block_hash(hashes, hash_function)
-        outputset[id] = hashes
-        visited.append(id)
-        for neighbour in neighbourset[id]:
+        outputset[v_id] = hashes
+        visited.append(v_id)
+        for neighbour in neighbourset[v_id]:
             dropset[neighbour][1] -= 1
-            workingset[neighbour][1].append(outputset[id]['hash'])
+            workingset[neighbour][1].append(outputset[v_id]['hash'])
             if dropset[neighbour][1] == 0:
                 queue.append(neighbour)
     if len(visited) != len(dropset):
@@ -93,29 +93,28 @@ def compare_dags(vertices_1: dict, vertices_2: dict):
     if vertices_1['signature'] == vertices_2['signature']:
         # They match, no work to be done
         return True, [], []
-    else:
-        sigmap_1 = {}
-        sigmap_2 = {}
-        for key, val in vertices_1.items():
-            if not isinstance(val, dict):
-                continue
-            sigmap_1[val['hash']] = key
-        for key, val in vertices_2.items():
-            if not isinstance(val, dict):
-                continue
-            sigmap_2[val['hash']] = key
+    sigmap_1 = {}
+    sigmap_2 = {}
+    for key, val in vertices_1.items():
+        if not isinstance(val, dict):
+            continue
+        sigmap_1[val['hash']] = key
+    for key, val in vertices_2.items():
+        if not isinstance(val, dict):
+            continue
+        sigmap_2[val['hash']] = key
 
-        sigset_1 = set(sigmap_1.keys())
-        sigset_2 = set(sigmap_2.keys())
-        difs_1 = sigset_1.difference(sigset_2)
-        difs_2 = sigset_2.difference(sigset_1)
-        out_1 = []
-        out_2 = []
-        for sig in difs_1:
-            out_1.append(sigmap_1[sig])
-        for sig in difs_2:
-            out_2.append(sigmap_2[sig])
-        return False, sorted(out_1), sorted(out_2)
+    sigset_1 = set(sigmap_1.keys())
+    sigset_2 = set(sigmap_2.keys())
+    difs_1 = sigset_1.difference(sigset_2)
+    difs_2 = sigset_2.difference(sigset_1)
+    out_1 = []
+    out_2 = []
+    for sig in difs_1:
+        out_1.append(sigmap_1[sig])
+    for sig in difs_2:
+        out_2.append(sigmap_2[sig])
+    return False, sorted(out_1), sorted(out_2)
 
 
 def pretty_print(vertices=None, edges=None, signatures=None, indent=4):
