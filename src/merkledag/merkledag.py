@@ -37,8 +37,7 @@ def _generate_graph_signature(leaves: list, hash_function):
     return mtree.merkle_root
 
 
-def build_merkle_dag(vertices: dict, edges: list, hash_function, data_fields, append_global=True,
-                     append_hash=True, overwrite=True):
+def build_merkle_dag(vertices: dict, edges: list, hash_function, data_fields, append_hashes=False):
     dropset = {}
     workingset = {}
     outputset = {}
@@ -85,6 +84,10 @@ def build_merkle_dag(vertices: dict, edges: list, hash_function, data_fields, ap
     for leaf in leaves:
         leaf_vertices.append(outputset[leaf])
     outputset['signature'] = _generate_graph_signature(leaf_vertices, hash_function)
+    if append_hashes:
+        for vid, vertex in vertices.items():
+            vertex.update(outputset[vid])
+        vertices['signature'] = outputset['signature']
     return outputset
 
 
