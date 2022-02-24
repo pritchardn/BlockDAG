@@ -21,7 +21,7 @@ def _build_block_hash(data: dict, hash_function):
     hashes = []
     for _, val in data.items():
         if val is not None:
-            if isinstance(val, list):
+            if isinstance(val, collections.Iterable):
                 hashes.extend(val)
             else:
                 hashes.append(val)
@@ -38,6 +38,12 @@ def _generate_graph_signature(leaves: list, hash_function):
 
 
 def build_merkle_dag(vertices: dict, edges: list, hash_function, data_fields, append_hashes=False):
+    if not hasattr(data_fields, '__contains__'):
+        raise AttributeError("data_fields object does not implement __contains__")
+    if not hasattr(vertices, '__getitem__'):
+        raise AttributeError("vertices object does not implement '__getitem__")
+    if not isinstance(append_hashes, bool):
+        raise AttributeError("append_hashes needs to be a boolean")
     dropset = {}
     workingset = {}
     outputset = {}
@@ -93,19 +99,33 @@ def build_merkle_dag(vertices: dict, edges: list, hash_function, data_fields, ap
 
 def compare_dags(vertices_1: dict, vertices_2: dict):
     # Assumes vertices_1 contains the hash signatures for this data
+    if not hasattr(vertices_1, '__getitem__'):
+        raise AttributeError("vertices_1 does not implement '__getitem__")
+    if not hasattr(vertices_2, '__getitem__'):
+        raise AttributeError("vertices_2 does not implement '__getitem__")
+    if vertices_1.get('signature') is None:
+        raise ValueError("vertices_1 does not contain 'signature' field")
+    if vertices_2.get('signature') is None:
+        raise ValueError("vertices_2 does not contain 'signature' field")
     if vertices_1['signature'] == vertices_2['signature']:
         # They match, no work to be done
         return True, [], []
     sigmap_1 = {}
     sigmap_2 = {}
     for key, val in vertices_1.items():
-        if not isinstance(val, dict):
+        if not hasattr(val, '__get__'):
             continue
-        sigmap_1[val['hash']] = key
+        if val.get('hash') is not None:
+            sigmap_1[val['hash']] = key
+        else:
+            raise ValueError(f"Vertex {key} does not contain hash")
     for key, val in vertices_2.items():
-        if not isinstance(val, dict):
+        if not hasattr(val, '__get__'):
             continue
-        sigmap_2[val['hash']] = key
+        if val.get('hash') is not None:
+            sigmap_2[val['hash']] = key
+        else:
+            raise ValueError(f"Vertex {key} does not contain hash")
 
     sigset_1 = set(sigmap_1.keys())
     sigset_2 = set(sigmap_2.keys())
