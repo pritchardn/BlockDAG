@@ -1,5 +1,5 @@
-# MerkleDAG
-MerkleDAGs for structured signature generation.
+# BlockDAG
+BlockDAGs for structured signature generation.
 
 A [Merkle-Tree](https://en.wikipedia.org/wiki/Merkle_tree) is a binary tree of hash nodes.
 This module implements an extension of this data-structure which differs in that:
@@ -8,7 +8,7 @@ This module implements an extension of this data-structure which differs in that
 
 Note, this is, in principle, a superset of a MerkleTree.
 
-One creates a MerkleDAG by providing a dictionary of vertices (id : dict()) 
+One creates a BlockDAG by providing a dictionary of vertices (id : dict()) 
 and list of edges (id: id tuples).
 
 ## Usage

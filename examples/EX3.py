@@ -1,4 +1,4 @@
-from merkledag import build_merkle_dag, pretty_prints, compare_dags
+from blockdag import build_hash_dag, pretty_prints, compare_dags
 import hashlib
 
 
@@ -13,7 +13,7 @@ def main():
             'd': {'not_data': 4}
             }
     edges = [('a', 'b'), ('a', 'c'), ('b', 'd'), ('c', 'd')]
-    sig = build_merkle_dag(data, edges, hashfunc, ['data'], append_hashes=True)
+    sig = build_hash_dag(data, edges, hashfunc, ['data'], append_hashes=True)
     print(pretty_prints(data, edges, sig))
     print(compare_dags(data, sig))
 

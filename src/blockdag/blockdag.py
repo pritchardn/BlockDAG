@@ -1,3 +1,10 @@
+"""BlockDAG generator
+
+This package contains code to build and compare BlockDAG in a lightweight-as-possible manner.
+The main method (build_block_dag) performs a Kahn topological sort of the vertices (dict) and edges
+(list of (u, v) tuples) building blocks for each vertex as needed.
+
+"""
 import json
 import hashlib
 import collections
@@ -37,7 +44,7 @@ def _generate_graph_signature(leaves: list, hash_function):
     return mtree.merkle_root
 
 
-def _check_args_build_merkle_dag(vertices, edges, data_fields, append_hashes):
+def _check_args_build_block_dag(vertices, edges, data_fields, append_hashes):
     if not hasattr(data_fields, '__contains__'):
         raise AttributeError("data_fields object does not implement __contains__")
     if not hasattr(vertices, '__getitem__'):
@@ -48,8 +55,32 @@ def _check_args_build_merkle_dag(vertices, edges, data_fields, append_hashes):
         raise AttributeError("edges does not implement collections.Iterable")
 
 
-def build_merkle_dag(vertices: dict, edges: list, hash_function, data_fields, append_hashes=False):
-    _check_args_build_merkle_dag(vertices, edges, data_fields, append_hashes)
+def build_hash_dag(vertices: dict, edges: list, hash_function, data_fields, append_hashes=False):
+    """Builds and returns (optionally appending to the original data) BlockDAG signature data for a
+    graph. Performs a Kahn topological sort of the vertices and edges, inclusively filtering by
+    data_fields. The final signature is built by concatenating and sorting the hashes from each
+    leaf in the graph, inserting them all into a Merkle Tree and taking the root.
+
+    Parameters
+    ----------
+    vertices : dict
+        A dictionary of vertex information.
+    edges : list
+        A list of (u, v) tuples containing the keys in the vertices.
+    hash_function : function
+        A function used to generate signatures throughout, as hex-digests.
+    data_fields : list
+        A list of keys used to inclusively filter data in all vertices.
+    append_hashes : bool, default=False
+        If true, data hash data and graph signature will be appended to the
+        original vertex dictionary.
+
+    Returns
+    -------
+    output_signatures : dict
+        A dictionary containing the signature information for each vertex and for the whole graph.
+    """
+    _check_args_build_block_dag(vertices, edges, data_fields, append_hashes)
     dropset = {}
     workingset = {}
     outputset = {}
@@ -115,6 +146,24 @@ def _check_args_compare_dags(vertices_1, vertices_2):
 
 
 def compare_dags(vertices_1: dict, vertices_2: dict):
+    """Compares two BlockDags and finds vertices which differ between them.
+
+    Parameters
+    ----------
+    vertices_1 : dict
+        The dictionary of the first BlockDAG containing all information built with build_hash_dag.
+    vertices_2 : dict
+        The dictionary of the first BlockDAG containing all information built with build_hash_dag.
+
+    Returns
+    -------
+    identical : bool
+        True if DAGs are identical, False otherwise.
+    difference_list_1 : list
+        List of vertex labels from the first set which differ.
+    difference_list_2 : list
+        List of vertex labels form the second set which differ.
+    """
     # Assumes vertices_1 contains the hash signatures for this data
     _check_args_compare_dags(vertices_1, vertices_2)
     if vertices_1['signature'] == vertices_2['signature']:
@@ -151,6 +200,19 @@ def compare_dags(vertices_1: dict, vertices_2: dict):
 
 
 def pretty_print(vertices=None, edges=None, signatures=None, indent=4):
+    """Prints the given vertices, edges and generated signatures as an indented json dump
+
+    Parameters
+    ----------
+    vertices : dict
+        The dictionary of vertices to print
+    edges : list
+        The list of (u, v) tuples to print
+    signatures : dict
+        The dictionary of generated signatures (from build_block_dag)
+    indent : int, default=True
+        The level of json indentation
+    """
     if vertices:
         print("------\tVERTICES\t------")
         print(json.dumps(vertices, indent=indent))
@@ -163,6 +225,20 @@ def pretty_print(vertices=None, edges=None, signatures=None, indent=4):
 
 
 def pretty_prints(vertices=None, edges=None, signatures=None, indent=4):
+    """Returns the string tht would be printed, edges and generated signatures as an indented json
+        dump.
+
+        Parameters
+        ----------
+        vertices : dict
+            The dictionary of vertices to print
+        edges : list
+            The list of (u, v) tuples to print
+        signatures : dict
+            The dictionary of generated signatures (from build_block_dag)
+        indent : int, default=True
+            The level of json indentation
+        """
     ret = ""
     if vertices:
         ret += "------\tVERTICES\t------\n"
