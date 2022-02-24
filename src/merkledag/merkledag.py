@@ -37,13 +37,19 @@ def _generate_graph_signature(leaves: list, hash_function):
     return mtree.merkle_root
 
 
-def build_merkle_dag(vertices: dict, edges: list, hash_function, data_fields, append_hashes=False):
+def _check_args_build_merkle_dag(vertices, edges, data_fields, append_hashes):
     if not hasattr(data_fields, '__contains__'):
         raise AttributeError("data_fields object does not implement __contains__")
     if not hasattr(vertices, '__getitem__'):
         raise AttributeError("vertices object does not implement '__getitem__")
     if not isinstance(append_hashes, bool):
         raise AttributeError("append_hashes needs to be a boolean")
+    if not isinstance(edges, collections.Iterable):
+        raise AttributeError("edges does not implement collections.Iterable")
+
+
+def build_merkle_dag(vertices: dict, edges: list, hash_function, data_fields, append_hashes=False):
+    _check_args_build_merkle_dag(vertices, edges, data_fields, append_hashes)
     dropset = {}
     workingset = {}
     outputset = {}
@@ -97,8 +103,7 @@ def build_merkle_dag(vertices: dict, edges: list, hash_function, data_fields, ap
     return outputset
 
 
-def compare_dags(vertices_1: dict, vertices_2: dict):
-    # Assumes vertices_1 contains the hash signatures for this data
+def _check_args_compare_dags(vertices_1, vertices_2):
     if not hasattr(vertices_1, '__getitem__'):
         raise AttributeError("vertices_1 does not implement '__getitem__")
     if not hasattr(vertices_2, '__getitem__'):
@@ -107,6 +112,11 @@ def compare_dags(vertices_1: dict, vertices_2: dict):
         raise ValueError("vertices_1 does not contain 'signature' field")
     if vertices_2.get('signature') is None:
         raise ValueError("vertices_2 does not contain 'signature' field")
+
+
+def compare_dags(vertices_1: dict, vertices_2: dict):
+    # Assumes vertices_1 contains the hash signatures for this data
+    _check_args_compare_dags(vertices_1, vertices_2)
     if vertices_1['signature'] == vertices_2['signature']:
         # They match, no work to be done
         return True, [], []
