@@ -17,7 +17,7 @@ For example (available in `examples/EX0.py`). Consider the following Graph:
 
 <img src="https://github.com/pritchardn/BlockDAG/blob/main/img/ActualDAG.JPG"  />
 
-This generates the following 
+Once processed, the following HashDAG is generated.
 
 <img src="https://github.com/pritchardn/BlockDAG/blob/main/img/HashDAG.JPG"  />
 
