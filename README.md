@@ -15,11 +15,11 @@ and list of edges (id: id tuples).
 
 For example (available in `examples/EX0.py`). Consider the following Graph:
 
-<img src="https://github.com/pritchardn/blockDAG/blob/master/img/ActualDAG.jpg"  />
+<img src="https://github.com/pritchardn/BlockDAG/blob/main/img/ActualDAG.JPG"  />
 
 This generates the following 
 
-<img src="https://github.com/pritchardn/blockDAG/blob/master/img/HashDAG.jpg"  />
+<img src="https://github.com/pritchardn/BlockDAG/blob/main/img/HashDAG.JPG"  />
 
 ## Usage
 
