@@ -20,7 +20,7 @@ def _build_hash_payload(vertex: dict, data_fields, hash_function):
     for key, val in vertex.items():
         if key in data_fields:
             data.append(val)
-    mtree = MerkleTree(sorted(data), hash_function)
+    mtree = MerkleTree(data, hash_function)
     return {'data_hash': mtree.merkle_root}
 
 
