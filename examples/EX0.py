@@ -1,4 +1,4 @@
-from blockdag import build_hash_dag, pretty_prints
+from blockdag import build_block_dag, pretty_prints
 import hashlib
 
 
@@ -13,7 +13,7 @@ def main():
             'd': {'not_data': 'help'}
             }
     edges = [('a', 'c'), ('b', 'c'), ('b', 'd'), ('c', 'd')]
-    sig = build_hash_dag(data, edges, hashfunc, ['data', 'important'])
+    sig = build_block_dag(data, edges, hashfunc, ['data', 'important'])
     print(pretty_prints(data, edges, sig))
 
 

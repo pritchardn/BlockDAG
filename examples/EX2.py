@@ -1,4 +1,4 @@
-from blockdag import build_hash_dag, compare_dags
+from blockdag import build_block_dag, compare_dags
 import hashlib
 
 
@@ -19,8 +19,8 @@ def main():
               'd': {'not_data': 5}
               }
     edges_2 = [('a', 'b'), ('a', 'c'), ('b', 'd'), ('c', 'd')]
-    sig_1 = build_hash_dag(data_1, edges_1, hashfunc, ['data'])
-    sig_2 = build_hash_dag(data_2, edges_2, hashfunc, ['data'])
+    sig_1 = build_block_dag(data_1, edges_1, hashfunc, ['data'])
+    sig_2 = build_block_dag(data_2, edges_2, hashfunc, ['data'])
     dags_same, diff_1, diff_2 = compare_dags(sig_1, sig_2)
     if not dags_same:
         print(diff_1)

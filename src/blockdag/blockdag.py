@@ -55,7 +55,7 @@ def _check_args_build_block_dag(vertices, edges, data_fields, append_hashes):
         raise AttributeError("edges does not implement collections.Iterable")
 
 
-def build_hash_dag(vertices: dict, edges: list, hash_function, data_fields, append_hashes=False):
+def build_block_dag(vertices: dict, edges: list, hash_function, data_fields, append_hashes=False):
     """Builds and returns (optionally appending to the original data) BlockDAG signature data for a
     graph. Performs a Kahn topological sort of the vertices and edges, inclusively filtering by
     data_fields. The final signature is built by concatenating and sorting the hashes from each
