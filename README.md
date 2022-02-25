@@ -1,3 +1,5 @@
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 # BlockDAG
 BlockDAGs for structured signature generation.
 
@@ -11,7 +13,21 @@ Note, this is, in principle, a superset of a MerkleTree.
 One creates a BlockDAG by providing a dictionary of vertices (id : dict()) 
 and list of edges (id: id tuples).
 
+For example (available in `examples/EX0.py`). Consider the following Graph:
+
+<img src="https://github.com/pritchardn/blockDAG/blob/master/img/ActualDAG.jpg"  />
+
+This generates the following 
+
+<img src="https://github.com/pritchardn/blockDAG/blob/master/img/HashDAG.jpg"  />
+
 ## Usage
+
+## Requirements / Assumptions
+
+- Vertex keys are assumed to be unique
+- The fields 'hash' and 'signature' will be overwritten if `append_hashes` is set to `True`
+- While it will not cause any issues, cycles will be ignored in the original graph.
 
 ## Testing
 
