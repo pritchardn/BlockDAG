@@ -7,7 +7,7 @@ The main method (build_block_dag) performs a Kahn topological sort of the vertic
 """
 import json
 import hashlib
-import collections
+import collections.abc
 from merklelib import MerkleTree
 
 
@@ -18,7 +18,10 @@ def _default_hash(value):
 def _build_hash_payload(vertex: dict, data_fields, hash_function):
     data = []
     for key, val in vertex.items():
-        if key in data_fields:
+        if data_fields is not None:
+            if key in data_fields:
+                data.append(val)
+        else:
             data.append(val)
     mtree = MerkleTree(data, hash_function)
     return {'data_hash': mtree.merkle_root}
@@ -45,17 +48,17 @@ def _generate_graph_signature(leaves: list, hash_function):
 
 
 def _check_args_build_block_dag(vertices, edges, data_fields, append_hashes):
-    if not hasattr(data_fields, '__contains__'):
+    if not hasattr(data_fields, '__contains__') and data_fields is not None:
         raise AttributeError("data_fields object does not implement __contains__")
     if not hasattr(vertices, '__getitem__'):
         raise AttributeError("vertices object does not implement '__getitem__")
     if not isinstance(append_hashes, bool):
         raise AttributeError("append_hashes needs to be a boolean")
-    if not isinstance(edges, collections.Iterable):
+    if not isinstance(edges, collections.abc.Iterable):
         raise AttributeError("edges does not implement collections.Iterable")
 
 
-def build_block_dag(vertices: dict, edges: list, hash_function, data_fields, append_hashes=False):
+def build_block_dag(vertices: dict, edges: list, hash_function=_default_hash, data_fields=None, append_hashes=False):
     """Builds and returns (optionally appending to the original data) BlockDAG signature data for a
     graph. Performs a Kahn topological sort of the vertices and edges, inclusively filtering by
     data_fields. The final signature is built by concatenating and sorting the hashes from each
@@ -71,9 +74,10 @@ def build_block_dag(vertices: dict, edges: list, hash_function, data_fields, app
         A function used to generate signatures throughout, as hex-digests.
     data_fields : list
         A list of keys used to inclusively filter data in all vertices.
+        If none, will include all fields.
     append_hashes : bool, default=False
-        If true, data hash data and graph signature will be appended to the
-        original vertex dictionary.
+        If true, data hash data and will be appended to each vertex's value dictionary.
+        The whole graph signature however, will not be added to the graph.
 
     Returns
     -------
@@ -130,7 +134,6 @@ def build_block_dag(vertices: dict, edges: list, hash_function, data_fields, app
     if append_hashes:
         for vid, vertex in vertices.items():
             vertex.update(outputset[vid])
-        vertices['signature'] = outputset['signature']
     return outputset
 
 
