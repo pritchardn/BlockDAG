@@ -30,4 +30,4 @@ jobs:
         python -m pip install -e .
     - name: Test with unittest
       run: |
-        coverage -m unittest
+        python -m unittest
