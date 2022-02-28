@@ -31,7 +31,7 @@ def _build_block_hash(data: dict, hash_function):
     hashes = []
     for _, val in data.items():
         if val is not None:
-            if isinstance(val, collections.Iterable):
+            if isinstance(val, collections.abc.Iterable):
                 hashes.extend(val)
             else:
                 hashes.append(val)
