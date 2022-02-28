@@ -5,4 +5,5 @@ The main method (build_block_dag) performs a Kahn topological sort of the vertic
 (list of (u, v) tuples) building blocks for each vertex as needed.
 
 """
+# pylint: disable=R0801
 from blockdag.blockdag import *
