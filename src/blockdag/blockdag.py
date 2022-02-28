@@ -110,7 +110,7 @@ def build_block_dag(
         dropset[src][2] += 1
         neighbourset[src].append(dest)
 
-    for v_id in dropset:
+    for v_id, _ in dropset.items():
         if dropset[v_id][1] == 0:
             queue.append(v_id)
         if not neighbourset[v_id]:
