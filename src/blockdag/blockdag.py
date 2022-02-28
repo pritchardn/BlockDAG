@@ -24,7 +24,7 @@ def _build_hash_payload(vertex: dict, data_fields, hash_function):
         else:
             data.append(val)
     mtree = MerkleTree(data, hash_function)
-    return {'data_hash': mtree.merkle_root}
+    return {"data_hash": mtree.merkle_root}
 
 
 def _build_block_hash(data: dict, hash_function):
@@ -36,21 +36,21 @@ def _build_block_hash(data: dict, hash_function):
             else:
                 hashes.append(val)
     mtree = MerkleTree(sorted(hashes), hash_function)
-    data['hash'] = mtree.merkle_root
+    data["hash"] = mtree.merkle_root
 
 
 def _generate_graph_signature(leaves: list, hash_function):
     hashes = []
     for leaf in leaves:
-        hashes.append(leaf['hash'])
+        hashes.append(leaf["hash"])
     mtree = MerkleTree(sorted(hashes), hash_function)
     return mtree.merkle_root
 
 
 def _check_args_build_block_dag(vertices, edges, data_fields, append_hashes):
-    if not hasattr(data_fields, '__contains__') and data_fields is not None:
+    if not hasattr(data_fields, "__contains__") and data_fields is not None:
         raise AttributeError("data_fields object does not implement __contains__")
-    if not hasattr(vertices, '__getitem__'):
+    if not hasattr(vertices, "__getitem__"):
         raise AttributeError("vertices object does not implement '__getitem__")
     if not isinstance(append_hashes, bool):
         raise AttributeError("append_hashes needs to be a boolean")
@@ -58,7 +58,13 @@ def _check_args_build_block_dag(vertices, edges, data_fields, append_hashes):
         raise AttributeError("edges does not implement collections.Iterable")
 
 
-def build_block_dag(vertices: dict, edges: list, hash_function=_default_hash, data_fields=None, append_hashes=False):
+def build_block_dag(
+        vertices: dict,
+        edges: list,
+        hash_function=_default_hash,
+        data_fields=None,
+        append_hashes=False,
+):
     """Builds and returns (optionally appending to the original data) BlockDAG signature data for a
     graph. Performs a Kahn topological sort of the vertices and edges, inclusively filtering by
     data_fields. The final signature is built by concatenating and sorting the hashes from each
@@ -112,16 +118,18 @@ def build_block_dag(vertices: dict, edges: list, hash_function=_default_hash, da
 
     while queue:
         v_id = queue.pop()
-        workingset[v_id][0] = _build_hash_payload(dropset[v_id][0], data_fields, hash_function)
+        workingset[v_id][0] = _build_hash_payload(
+            dropset[v_id][0], data_fields, hash_function
+        )
         hashes = {}
         hashes.update(workingset[v_id][0])
-        hashes['parent_hashes'] = workingset[v_id][1]
+        hashes["parent_hashes"] = workingset[v_id][1]
         _build_block_hash(hashes, hash_function)
         outputset[v_id] = hashes
         visited.append(v_id)
         for neighbour in neighbourset[v_id]:
             dropset[neighbour][1] -= 1
-            workingset[neighbour][1].append(outputset[v_id]['hash'])
+            workingset[neighbour][1].append(outputset[v_id]["hash"])
             if dropset[neighbour][1] == 0:
                 queue.append(neighbour)
     if len(visited) != len(dropset):
@@ -130,7 +138,7 @@ def build_block_dag(vertices: dict, edges: list, hash_function=_default_hash, da
     leaf_vertices = []
     for leaf in leaves:
         leaf_vertices.append(outputset[leaf])
-    outputset['signature'] = _generate_graph_signature(leaf_vertices, hash_function)
+    outputset["signature"] = _generate_graph_signature(leaf_vertices, hash_function)
     if append_hashes:
         for vid, vertex in vertices.items():
             vertex.update(outputset[vid])
@@ -138,13 +146,13 @@ def build_block_dag(vertices: dict, edges: list, hash_function=_default_hash, da
 
 
 def _check_args_compare_dags(vertices_1, vertices_2):
-    if not hasattr(vertices_1, '__getitem__'):
+    if not hasattr(vertices_1, "__getitem__"):
         raise AttributeError("vertices_1 does not implement '__getitem__")
-    if not hasattr(vertices_2, '__getitem__'):
+    if not hasattr(vertices_2, "__getitem__"):
         raise AttributeError("vertices_2 does not implement '__getitem__")
-    if vertices_1.get('signature') is None:
+    if vertices_1.get("signature") is None:
         raise ValueError("vertices_1 does not contain 'signature' field")
-    if vertices_2.get('signature') is None:
+    if vertices_2.get("signature") is None:
         raise ValueError("vertices_2 does not contain 'signature' field")
 
 
@@ -169,23 +177,23 @@ def compare_dags(vertices_1: dict, vertices_2: dict):
     """
     # Assumes vertices_1 contains the hash signatures for this data
     _check_args_compare_dags(vertices_1, vertices_2)
-    if vertices_1['signature'] == vertices_2['signature']:
+    if vertices_1["signature"] == vertices_2["signature"]:
         # They match, no work to be done
         return True, [], []
     sigmap_1 = {}
     sigmap_2 = {}
     for key, val in vertices_1.items():
-        if not hasattr(val, '__get__'):
+        if not hasattr(val, "__get__"):
             continue
-        if val.get('hash') is not None:
-            sigmap_1[val['hash']] = key
+        if val.get("hash") is not None:
+            sigmap_1[val["hash"]] = key
         else:
             raise ValueError(f"Vertex {key} does not contain hash")
     for key, val in vertices_2.items():
-        if not hasattr(val, '__get__'):
+        if not hasattr(val, "__get__"):
             continue
-        if val.get('hash') is not None:
-            sigmap_2[val['hash']] = key
+        if val.get("hash") is not None:
+            sigmap_2[val["hash"]] = key
         else:
             raise ValueError(f"Vertex {key} does not contain hash")
 
@@ -229,19 +237,19 @@ def pretty_print(vertices=None, edges=None, signatures=None, indent=4):
 
 def pretty_prints(vertices=None, edges=None, signatures=None, indent=4):
     """Returns the string tht would be printed, edges and generated signatures as an indented json
-        dump.
+    dump.
 
-        Parameters
-        ----------
-        vertices : dict
-            The dictionary of vertices to print
-        edges : list
-            The list of (u, v) tuples to print
-        signatures : dict
-            The dictionary of generated signatures (from build_block_dag)
-        indent : int, default=True
-            The level of json indentation
-        """
+    Parameters
+    ----------
+    vertices : dict
+        The dictionary of vertices to print
+    edges : list
+        The list of (u, v) tuples to print
+    signatures : dict
+        The dictionary of generated signatures (from build_block_dag)
+    indent : int, default=True
+        The level of json indentation
+    """
     ret = ""
     if vertices:
         ret += "------\tVERTICES\t------\n"
