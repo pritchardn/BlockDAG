@@ -3,12 +3,7 @@ An example showing the append_hash behaviour,
 building the signature for a straightforward DAG containing a variety
 of data types.
 """
-import hashlib
 from blockdag import build_block_dag, pretty_prints
-
-
-def _hashfunc(value):
-    return hashlib.sha256(value).hexdigest()
 
 
 def _main():
@@ -19,7 +14,7 @@ def _main():
         "d": {"not_data": None},
     }
     edges = [("a", "b"), ("a", "c"), ("b", "d"), ("c", "d")]
-    sig = build_block_dag(data, edges, _hashfunc, ["data"], append_hashes=True)
+    sig = build_block_dag(data, edges, data_fields=["data"], append_hashes=True)
     print(pretty_prints(data, edges, sig))
 
 

@@ -90,6 +90,7 @@ def build_block_dag(
     output_signatures : dict
         A dictionary containing the signature information for each vertex and for the whole graph.
     """
+    # pylint: disable=R0914
     _check_args_build_block_dag(vertices, edges, data_fields, append_hashes)
     dropset = {}
     workingset = {}
@@ -110,8 +111,8 @@ def build_block_dag(
         dropset[src][2] += 1
         neighbourset[src].append(dest)
 
-    for v_id, _ in dropset.items():
-        if dropset[v_id][1] == 0:
+    for v_id, degree_info in dropset.items():
+        if degree_info[1] == 0:
             queue.append(v_id)
         if not neighbourset[v_id]:
             leaves.append(v_id)
