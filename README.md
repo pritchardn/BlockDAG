@@ -1,5 +1,5 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
-
+![Pylint: 10](https://github.com/pritchardn/BlockDAG/actions/workflows/pylint.yml/badge.svg)
 
 # BlockDAG
 BlockDAGs for structured signature generation.
