@@ -184,14 +184,18 @@ def compare_dags(vertices_1: dict, vertices_2: dict):
     sigmap_1 = {}
     sigmap_2 = {}
     for key, val in vertices_1.items():
-        if not hasattr(val, "__get__"):
+        if key == "signature":
+            continue
+        if not hasattr(val, "__getitem__"):
             continue
         if val.get("hash") is not None:
             sigmap_1[val["hash"]] = key
         else:
             raise ValueError(f"Vertex {key} does not contain hash")
     for key, val in vertices_2.items():
-        if not hasattr(val, "__get__"):
+        if key == "signature":
+            continue
+        if not hasattr(val, "__getitem__"):
             continue
         if val.get("hash") is not None:
             sigmap_2[val["hash"]] = key
