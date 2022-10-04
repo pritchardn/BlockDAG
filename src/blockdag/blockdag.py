@@ -96,6 +96,8 @@ def build_block_dag(
         A dictionary containing the signature information for each vertex and for the whole graph.
     """
     # pylint: disable=R0914
+    # pylint: disable=R0912
+    # pylint: disable=R0913
     _check_args_build_block_dag(vertices, edges, data_fields, append_hashes)
     dropset = {}
     workingset = {}

@@ -154,16 +154,21 @@ class BlockDAGTest(unittest.TestCase):
         self.assertNotEqual(sig["signature"], sig_2["signature"])
 
     def test_traversal_function(self):
+        """
+        Tests functionality of mid-traversal functions. This example appends an integer to the
+        data of each vertex_data in the graph
+        """
         data, edges = _gen_simple_dag()
 
-        def simple_sum(element_id, element, **kwargs):
+        def simple_sum(_, vertex_data, **kwargs):
             for key, val in kwargs.items():
-                element[key] = val
+                vertex_data[key] = val
 
         for element in data.values():
             self.assertNotIn("i", element)
         sig = build_block_dag(data, edges, _hashfunc, ["i"], False)
-        sig_2 = build_block_dag(data, edges, _hashfunc, ["i"], False, simple_sum, i=42)
+        sig_2 = build_block_dag(data, edges, _hashfunc, ["i"], False, simple_sum,
+                                i=42)
         for element in data.values():
             self.assertIn("i", element)
             self.assertEqual(42, element["i"])
