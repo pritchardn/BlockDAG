@@ -64,6 +64,8 @@ def build_block_dag(
         hash_function=_default_hash,
         data_fields=None,
         append_hashes=False,
+        traverse_function=None,
+        **kwargs
 ):
     """Builds and returns (optionally appending to the original data) BlockDAG signature data for a
     graph. Performs a Kahn topological sort of the vertices and edges, inclusively filtering by
@@ -84,7 +86,10 @@ def build_block_dag(
     append_hashes : bool, default=False
         If true, data hash data and will be appended to each vertex's value dictionary.
         The whole graph signature however, will not be added to the graph.
-
+    traverse_function : function, default=None
+        If present, this function will be called on the contents of each node in the graph when
+        encountered. Will be passed the element_id and element data along side **kwargs.
+        e.g. function signature: foobar(element_id, element, **kwargs)
     Returns
     -------
     output_signatures : dict
@@ -119,6 +124,8 @@ def build_block_dag(
 
     while queue:
         v_id = queue.pop()
+        if traverse_function is not None:
+            traverse_function(v_id, dropset[v_id][0], **kwargs)
         workingset[v_id][0] = _build_hash_payload(
             dropset[v_id][0], data_fields, hash_function
         )

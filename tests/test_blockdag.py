@@ -1,8 +1,9 @@
 """
 Implements basic tests for blockDAG building and comparison functionalities.
 """
-import unittest
 import hashlib
+import unittest
+
 from blockdag import build_block_dag
 
 
@@ -150,4 +151,20 @@ class BlockDAGTest(unittest.TestCase):
         sig = build_block_dag(data, edges, _hashfunc, append_hashes=True)
         data["a"]["data"] = [5, 6, 7, 8]
         sig_2 = build_block_dag(data, edges, _hashfunc, append_hashes=True)
+        self.assertNotEqual(sig["signature"], sig_2["signature"])
+
+    def test_traversal_function(self):
+        data, edges = _gen_simple_dag()
+
+        def simple_sum(element_id, element, **kwargs):
+            for key, val in kwargs.items():
+                element[key] = val
+
+        for element in data.values():
+            self.assertNotIn("i", element)
+        sig = build_block_dag(data, edges, _hashfunc, ["i"], False)
+        sig_2 = build_block_dag(data, edges, _hashfunc, ["i"], False, simple_sum, i=42)
+        for element in data.values():
+            self.assertIn("i", element)
+            self.assertEqual(42, element["i"])
         self.assertNotEqual(sig["signature"], sig_2["signature"])
