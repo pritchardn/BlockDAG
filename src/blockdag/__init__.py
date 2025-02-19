@@ -6,4 +6,5 @@ The main method (build_block_dag) performs a Kahn topological sort of the vertic
 
 """
 # pylint: disable=R0801
+# pylint: disable=E0401
 from blockdag.blockdag import *

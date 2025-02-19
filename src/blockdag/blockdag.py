@@ -8,6 +8,7 @@ The main method (build_block_dag) performs a Kahn topological sort of the vertic
 import json
 import hashlib
 import collections.abc
+# pylint: disable=E0401
 from merklelib import MerkleTree
 
 
