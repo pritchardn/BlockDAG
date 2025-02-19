@@ -58,7 +58,7 @@ def _check_args_build_block_dag(vertices, edges, data_fields, append_hashes):
     if not isinstance(edges, collections.abc.Iterable):
         raise AttributeError("edges does not implement collections.Iterable")
 
-
+# pylint: disable=R0917
 def build_block_dag(
         vertices: dict,
         edges: list,
